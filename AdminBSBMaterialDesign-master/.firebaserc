@@ -1,0 +1,6 @@
+{
+  "projects": {
+    "default": "livestockdata-83554",
+    "staging": "livestockdata-83554"
+  }
+}

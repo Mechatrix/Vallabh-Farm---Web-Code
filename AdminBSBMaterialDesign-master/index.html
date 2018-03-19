@@ -1,0 +1,292 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+	<title>Sign In | Livestock Management Portal</title>
+	<!-- Favicon-->
+	<link rel="icon" href="../../favicon.ico" type="image/x-icon">
+
+	<!-- Google Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Roboto:400,700&subset=latin,cyrillic-ext" rel="stylesheet" type="text/css">
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" type="text/css">
+
+	<!-- Bootstrap Core Css -->
+	<link href="plugins/bootstrap/css/bootstrap.css" rel="stylesheet">
+
+	<!-- Waves Effect Css -->
+	<link href="plugins/node-waves/waves.css" rel="stylesheet" />
+
+	<!-- Animation Css -->
+	<link href="plugins/animate-css/animate.css" rel="stylesheet" />
+
+	<!-- Custom Css -->
+	<link href="css/style.css" rel="stylesheet">
+	
+	<!--Firebase Js-->
+
+<script src="https://www.gstatic.com/firebasejs/4.11.0/firebase.js"></script>
+<script>
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyAxG1OUMcKqzoCgkQOzMmjagqdNB6rzMNQ",
+    authDomain: "trackyt-01.firebaseapp.com",
+    databaseURL: "https://trackyt-01.firebaseio.com",
+    projectId: "trackyt-01",
+    storageBucket: "trackyt-01.appspot.com",
+    messagingSenderId: "812834196548"
+  };
+  firebase.initializeApp(config);
+</script>
+        <script type='text/javascript' src='https://cdn.firebase.com/js/client/1.0.15/firebase.js'></script>
+       </script>
+
+  <script type="text/javascript">
+
+    /**
+     * Handles the sign in button press.
+     */
+    function toggleSignIn() {
+      if (firebase.auth().currentUser) {
+        // [START signout]
+        firebase.auth().signOut();
+        // [END signout]
+      } else {
+        var email = document.getElementById('email').value;
+        var password = document.getElementById('password').value;
+        if (email.length < 4) {
+          alert('Please enter an email address.');
+          return;
+        }
+        if (password.length < 4) {
+          alert('Please enter a password.');
+          return;
+        }
+        // Sign in with email and pass.
+        // [START authwithemail]
+        firebase.auth().signInWithEmailAndPassword(email, password).catch(function(error) {
+          // Handle Errors here.
+          var errorCode = error.code;
+          var errorMessage = error.message;
+          // [START_EXCLUDE]
+          if (errorCode === 'auth/wrong-password') {
+            alert('Wrong password.');
+          } else {
+            alert(errorMessage);
+          }
+          console.log(error);
+          document.getElementById('quickstart-sign-in').disabled = false;
+          // [END_EXCLUDE]
+        });
+        // [END authwithemail]
+      }
+      document.getElementById('quickstart-sign-in').disabled = true;
+    }
+
+    /**
+     * Handles the sign up button press.
+     */
+    function handleSignUp() {
+      var email = document.getElementById('email').value;
+      var password = document.getElementById('password').value;
+      if (email.length < 4) {
+        alert('Please enter an email address.');
+        return;
+      }
+      if (password.length < 4) {
+        alert('Please enter a password.');
+        return;
+      }
+      // Sign in with email and pass.
+      // [START createwithemail]
+      firebase.auth().createUserWithEmailAndPassword(email, password).catch(function(error) {
+        // Handle Errors here.
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        // [START_EXCLUDE]
+        if (errorCode == 'auth/weak-password') {
+          alert('The password is too weak.');
+        } else {
+          alert(errorMessage);
+        }
+        console.log(error);
+        // [END_EXCLUDE]
+      });
+      // [END createwithemail]
+    }
+
+    /**
+     * Sends an email verification to the user.
+     */
+    function sendEmailVerification() {
+      // [START sendemailverification]
+      firebase.auth().currentUser.sendEmailVerification().then(function() {
+        // Email Verification sent!
+        // [START_EXCLUDE]
+        alert('Email Verification Sent!');
+        // [END_EXCLUDE]
+      });
+      // [END sendemailverification]
+    }
+
+    function sendPasswordReset() {
+      var email = document.getElementById('email').value;
+      // [START sendpasswordemail]
+      firebase.auth().sendPasswordResetEmail(email).then(function() {
+        // Password Reset Email Sent!
+        // [START_EXCLUDE]
+        alert('Password Reset Email Sent!');
+        // [END_EXCLUDE]
+      }).catch(function(error) {
+        // Handle Errors here.
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        // [START_EXCLUDE]
+        if (errorCode == 'auth/invalid-email') {
+          alert(errorMessage);
+        } else if (errorCode == 'auth/user-not-found') {
+          alert(errorMessage);
+        }
+        console.log(error);
+        // [END_EXCLUDE]
+      });
+      // [END sendpasswordemail];
+    }
+
+    /**
+     * initApp handles setting up UI event listeners and registering Firebase auth listeners:
+     *  - firebase.auth().onAuthStateChanged: This listener is called when the user is signed in or
+     *    out, and that is where we update the UI.
+     */
+    function initApp() {
+      // Listening for auth state changes.
+      // [START authstatelistener]
+      firebase.auth().onAuthStateChanged(function(user) {
+        // [START_EXCLUDE silent]
+        //document.getElementById('quickstart-verify-email').disabled = true;
+        // [END_EXCLUDE]
+        if (user) {
+          // User is signed in.
+		  window.location = 'Dashboard.html';
+          var displayName = user.displayName;
+          var email = user.email;
+          var emailVerified = user.emailVerified;
+          var photoURL = user.photoURL;
+          var isAnonymous = user.isAnonymous;
+          var uid = user.uid;
+          var providerData = user.providerData;
+          // [START_EXCLUDE]
+          //document.getElementById('quickstart-sign-in-status').textContent = 'Signed in';
+          //document.getElementById('quickstart-sign-in').textContent = 'Sign out';
+          document.getElementById('quickstart-account-details').textContent = JSON.stringify(user, null, '  ');
+          if (!emailVerified) {
+            document.getElementById('quickstart-verify-email').disabled = false;
+          }
+          // [END_EXCLUDE]
+        } else {
+          // User is signed out.
+          // [START_EXCLUDE]
+          //document.getElementById('quickstart-sign-in-status').textContent = 'Signed out';
+          document.getElementById('quickstart-sign-in').textContent = 'Sign in';
+          //document.getElementById('quickstart-account-details').textContent = 'null';
+          // [END_EXCLUDE]
+        }
+        // [START_EXCLUDE silent]
+        document.getElementById('quickstart-sign-in').disabled = false;
+        // [END_EXCLUDE]
+      });
+      // [END authstatelistener]
+
+      document.getElementById('quickstart-sign-in').addEventListener('click', toggleSignIn, false);
+      document.getElementById('quickstart-sign-up').addEventListener('click', handleSignUp, false);
+      //document.getElementById('quickstart-verify-email').addEventListener('click', sendEmailVerification, false);
+      document.getElementById('quickstart-password-reset').addEventListener('click', sendPasswordReset, false);
+    }
+
+    window.onload = function() {
+      initApp();
+    };
+  </script>
+	
+
+</head>
+
+<body class="login-page">
+	<div class="login-box">
+		<div class="logo">
+			<a href="javascript:void(0);"><b>Vallabh Farm</b></a>
+			<small>Livestock Management Portal</small>
+		</div>
+		<div class="card">
+			<div class="body">
+				<form id="sign_in" method="POST">
+					<div class="msg">Sign in to start your session</div>
+					<div class="input-group">
+						<span class="input-group-addon">
+							<i class="material-icons">person</i>
+						</span>
+						<div class="form-line">
+							<input type="text" class="form-control" name="username" id="email" placeholder="Username" required autofocus>
+						</div>
+					</div>
+					<div class="input-group">
+						<span class="input-group-addon">
+							<i class="material-icons">lock</i>
+						</span>
+						<div class="form-line">
+							<input type="password" class="form-control" name="password" id="password" placeholder="Password" required>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-xs-8 p-t-5">
+							<input type="checkbox" name="rememberme" id="rememberme" class="filled-in chk-col-pink">
+							<label for="rememberme">Remember Me</label>
+						</div>
+						<div class="col-xs-4">
+							<button class="btn btn-block bg-pink waves-effect" type="submit" id="quickstart-sign-in">SIGN IN</button>
+						</div>
+					</div>
+					
+					
+                   
+					<div class="row m-t-15 m-b--20">
+						<div class="col-xs-6">
+						    <button class="btn btn-block bg-pink waves-effect" id="quickstart-sign-up" name="signup">Register Now!</button>
+							<!---<a href="sign-up.html">Register Now!</a>--->
+						</div>
+						<div class="col-xs-6 align-center">
+						 <button class="btn btn-block bg-pink waves-effect" id="quickstart-password-reset" name="verify-email">Forgot Password?</button>
+							<!--<a href="forgot-password.html" id="quickstart-password-reset">Forgot Password?</a> -->
+						</div>
+					</div>
+				</form>
+				
+		   <!-- Container where we'll display the user details -->
+            <!--<div class="quickstart-user-details-container">Firebase sign-in status: <span id="quickstart-sign-in-status">Unknown</span>
+            <!--<div>Firebase auth <code>currentUser</code> object value:</div>
+            <pre><code id="quickstart-account-details">null</code></pre>-->
+          </div>
+		</div>
+		</div>
+	</div>
+
+	<!-- Jquery Core Js -->
+	<script src="../../plugins/jquery/jquery.min.js"></script>
+
+	<!-- Bootstrap Core Js -->
+	<script src="../../plugins/bootstrap/js/bootstrap.js"></script>
+
+	<!-- Waves Effect Plugin Js -->
+	<script src="../../plugins/node-waves/waves.js"></script>
+
+	<!-- Validation Plugin Js -->
+	<script src="../../plugins/jquery-validation/jquery.validate.js"></script>
+
+	<!-- Custom Js -->
+	<script src="../../js/admin.js"></script>
+	<script src="../../js/pages/examples/sign-in.js"></script>
+	
+</body>
+
+</html>
